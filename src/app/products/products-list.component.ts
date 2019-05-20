@@ -1,14 +1,27 @@
-import { Component } from "@angular/core";
+import { Component, OnInit, Pipe } from "@angular/core";
+import { IProduct } from "./product";
 
 @Component({
   selector: 'pm-products',
-  templateUrl: './product-list.component.html'
+  templateUrl: './product-list.component.html',
+  styleUrls: ['./product-list.component.css']
 })
-export class ProductListComponent{
+
+export class ProductListComponent implements OnInit{
+
     pageTitle: string = 'Product List';
     showImage: boolean = false;
-    listFilter: string = 'cart';
-    products: any[] = [
+
+    _listFilter: string;
+    get listFilter(): string {
+      return this._listFilter;
+    }
+    set listFilter(value: string){
+      this._listFilter = value;
+      this.filteredProducts= this.listFilter ? this.performFilter(this.listFilter) : this.products;
+    }
+    filteredProducts: IProduct[];
+    products: IProduct[] = [
       {
         "productId": 1,
         "productName": "Leaf Rake",
@@ -50,7 +63,22 @@ export class ProductListComponent{
         "imageUrl": "https://openclipart.org/image/300px/svg_to_png/27070/egore911_saw.png"
       }
   ];
+  constructor() {
+    this.filteredProducts = this.products;
+    this.listFilter = 'cart';
+  }
+  onNotify(message: string): void {
+  this.pageTitle = 'Product List: '+ message;
+}
+  performFilter(filterBy: string): IProduct[]{
+    filterBy = filterBy.toLocaleLowerCase(); //converts filter criteria to lowercase
+      return this.products.filter((product: IProduct) => //new arraty created with elements that meet criteria. Arrow syntax used to define function
+        product.productName.toLocaleLowerCase().indexOf(filterBy) !== -1);
+  }
     toggleImage() :void {
       this.showImage = !this.showImage;
+    }
+    ngOnInit(){
+      console.log('in onInit');
     }
 }
